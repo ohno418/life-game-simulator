@@ -97,17 +97,13 @@ const Wrapper = styled.div`
   padding: 10px;
 `;
 
-const cellWidth = 20;
-
 const Row = styled.div`
-  width: ${cellWidth * 3}px;
-  height: ${cellWidth}px;
   display: flex
 `;
 
 const Cell = styled.div<{ isLiving: boolean }>`
-  width: ${cellWidth}px;
-  height: ${cellWidth}px;
+  width: 20px;
+  height: 20px;
   background-color: ${({ isLiving }) => isLiving ? 'black' : 'white' };
   border: solid 1px lightgray;
 `;
