@@ -160,4 +160,5 @@ const Cell = styled.div<{ isLiving: boolean }>`
   height: 20px;
   background-color: ${({ isLiving }) => isLiving ? 'black' : 'white' };
   border: solid 1px lightgray;
+  flex-shrink: 0;
 `;
