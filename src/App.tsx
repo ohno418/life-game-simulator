@@ -4,7 +4,7 @@ import styled from 'styled-components';
 type CellState = 0 | 1;
 
 class State {
-  cells: CellState[][] = new Array(10).fill(new Array(10).fill(0));
+  cells: CellState[][] = new Array(50).fill(new Array(50).fill(0));
   isStarted: boolean = false;
 }
 
