@@ -44,7 +44,7 @@ export default class App extends React.Component<{}, State> {
   }
 
   private start = () => {
-    setInterval(this.goToNextGeneration, 500);
+    setInterval(this.goToNextGeneration, 150);
     this.setState({ isStarted: true });
   };
 
