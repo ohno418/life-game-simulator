@@ -4,11 +4,8 @@ import styled from 'styled-components';
 type CellState = 0 | 1;
 
 class State {
-  cells: CellState[][] = [
-    [0, 1, 0],
-    [0, 1, 0],
-    [0, 1, 0],
-  ];
+  cells: CellState[][] = new Array(10).fill(new Array(10).fill(0));
+  isStarted: boolean = false;
 }
 
 export default class App extends React.Component<{}, State> {
@@ -17,19 +14,28 @@ export default class App extends React.Component<{}, State> {
     this.state = new State();
   }
 
-  componentDidMount() {
-    setInterval(this.goToNextGeneration, 500);
-  }
-
   render() {
-    const { cells } = this.state;
+    const { cells, isStarted } = this.state;
 
     return (
       <Wrapper>
-        {cells.map(cellRow => (
-          <Row>
-            {cellRow.map(cell => (
-              <Cell isLiving={cell === 1} />
+        {isStarted || (
+          <Starter>
+            <div>Push cells to build initial state!</div>
+            <StartButton onClick={this.start}>
+              Start
+            </StartButton>
+          </Starter>
+        )}
+
+        {cells.map((cellRow, y) => (
+          <Row key={y}>
+            {cellRow.map((cell, x) => (
+              <Cell
+                key={`${x},${y}`}
+                isLiving={cell === 1}
+                onClick={() => this.changeState(x, y)}
+              />
             ))}
           </Row>
         ))}
@@ -37,12 +43,34 @@ export default class App extends React.Component<{}, State> {
     );
   }
 
+  private start = () => {
+    setInterval(this.goToNextGeneration, 500);
+    this.setState({ isStarted: true });
+  };
+
+  private changeState = (
+    x: number,
+    y: number,
+  ) => {
+    const { cells, isStarted } = this.state;
+    if (isStarted) {
+      return;
+    }
+
+    const newCells = cells.map((cs, yIndex) => {
+      return cs.map((c, xIndex) => {
+        return (xIndex === x && yIndex === y) ? ((c ^ 1) as CellState) : c;
+      });
+    });
+    this.setState({ cells: newCells });
+  };
+
   private goToNextGeneration = () => {
     const { cells } = this.state;
     const nextGenerationCells =
-      cells.map((cellRow, yAxisIndex) => {
-        return cellRow.map((cell, xAxisIndex) => {
-          const surroundingLivingCount = this.getSurroundingLivingCount(xAxisIndex, yAxisIndex);
+      cells.map((cellRow, y) => {
+        return cellRow.map((cell, x) => {
+          const surroundingLivingCount = this.getSurroundingLivingCount(x, y);
           return this.getNextState(
             cell,
             surroundingLivingCount,
@@ -53,19 +81,19 @@ export default class App extends React.Component<{}, State> {
   };
 
   private getSurroundingLivingCount = (
-    xAxisIndex: number,
-    yAxisIndex: number,
+    x: number,
+    y: number,
   ): number => {
     const { cells } = this.state;
     const surroundingCells = [
-      cells[yAxisIndex - 1]?.[xAxisIndex - 1],
-      cells[yAxisIndex - 1]?.[xAxisIndex],
-      cells[yAxisIndex - 1]?.[xAxisIndex + 1],
-      cells[yAxisIndex][xAxisIndex - 1],
-      cells[yAxisIndex][xAxisIndex + 1],
-      cells[yAxisIndex + 1]?.[xAxisIndex - 1],
-      cells[yAxisIndex + 1]?.[xAxisIndex],
-      cells[yAxisIndex + 1]?.[xAxisIndex + 1],
+      cells[y - 1]?.[x - 1],
+      cells[y - 1]?.[x],
+      cells[y - 1]?.[x + 1],
+      cells[y][x - 1],
+      cells[y][x + 1],
+      cells[y + 1]?.[x - 1],
+      cells[y + 1]?.[x],
+      cells[y + 1]?.[x + 1],
     ];
     return surroundingCells.filter(e => e === 1).length;
   };
@@ -82,9 +110,15 @@ export default class App extends React.Component<{}, State> {
           return 0;
         }
       case 1:
-        if (surroundingLivingCellCount <= 1 || surroundingLivingCellCount >= 4) {
+        if (
+          surroundingLivingCellCount <= 1 ||
+          surroundingLivingCellCount >= 4
+        ) {
           return 0;
-        } else if (surroundingLivingCellCount === 2 || surroundingLivingCellCount === 3) {
+        } else if (
+          surroundingLivingCellCount === 2 ||
+          surroundingLivingCellCount === 3
+        ) {
           return 1;
         }
       default:
@@ -94,7 +128,27 @@ export default class App extends React.Component<{}, State> {
 }
 
 const Wrapper = styled.div`
-  padding: 10px;
+  padding: 20px;
+`;
+
+const Starter = styled.div`
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 20px;
+`;
+
+const StartButton = styled.button`
+  background-color: green;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 25px;
+  border: none;
+  border-radius: 5px;
+  margin-left: 12px;
+  cursor: pointer;
 `;
 
 const Row = styled.div`
